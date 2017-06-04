@@ -1,3 +1,4 @@
+from steganography.steganography import Steganography
 from spy_details import default_spy
 
 status_messages = []
@@ -346,10 +347,70 @@ def select_friend():
 #Send message method will send message.............................................................................................................................................
 #..................................................................................................................................................................................
 def send_message():
-    index = select_friend()
-    if index != None:
-        print "selected friend %s aged %d with rating %.2f is online" %(friends[index]["name"], friends[index]["age"], friends[index]["rating"])
+    friend_choice = select_friend()
+    if friend_choice is not None:
+        loop_count = 0
+        while(True):
+            loop_count = loop_count + 1
+            if loop_count > 10:
+                print "Too many wrong attempt, Please try after sometime."
+                break
+
+            original_image = raw_input("What is the name of the image?")
+            original_image = original_image.strip()
+            if len(original_image) > 0:
+                output_path = 'output.jpg'
+                text = raw_input("What do you want to say?")
+                text_modified = text.strip()
+                if len(text_modified) > 0 :
+                    Steganography.encode(original_image, output_path, text)
+                    print ("Message sent successfully.")
+                    break
+                else :
+                    question = raw_input("Do you want to send a blank message? (y/n)")
+                    question = question.replace(" ","")
+                    question = question.upper()
+                    if question == "Y" or question == "YES":
+                        Steganography.encode(original_image, output_path, text)
+                        print "Message sent successfully."
+                        break
+                    elif question == "N" or question == "NO":
+                        pass
+                    else :
+                        print "Invalid input (y/n)"
+            else:
+                print "Please enter a valid file name. "
 #End of send_message method........................................................................................................................................................
+
+
+
+
+
+#Read message method will read message.
+#....................................................................................................................................................................................
+def read_message():
+    sender = select_friend()
+    if sender is not None:
+        loop_count = 0
+        while (True):
+            loop_count = loop_count + 1
+            if loop_count > 10:
+                print "Too many wrong attempt, Please try after sometime."
+                break
+
+            output_path = raw_input("What is the name of the file?")
+            output_path = output_path.strip()
+            if len(output_path) > 0:
+                secret_text = Steganography.decode(output_path)
+                secret_text = secret_text.strip()
+                print "Message = %s"%(secret_text)
+                if len(secret_text) == 0:
+                    print "Your friend has sent you a blank message"
+                break
+            else:
+                print "Please enter a valid file name. "
+
+#End of read message method..........................................................................................................................................................
 
 
 
@@ -396,8 +457,8 @@ def start_chat(spy):
 
         elif(menu_choice == "3"):
             send_message()
-        #elif(menu_choice == "4"):
-         #   read_message()
+        elif(menu_choice == "4"):
+            read_message()
         #elif(menu_choice == "5"):
          #   read_chat
         elif menu_choice == "6":
