@@ -1,4 +1,5 @@
 from steganography.steganography import Steganography
+from datetime import datetime
 from spy_details import default_spy
 
 status_messages = []
@@ -139,7 +140,8 @@ def friend_info(user_spy_rating):
         "salutation": None,
         "age": 0,
         "rating": 0,
-        "is_online": False
+        "is_online": False,
+        "chat": []
     }
 
 
@@ -363,19 +365,37 @@ def send_message():
                 text = raw_input("What do you want to say?")
                 text_modified = text.strip()
                 if len(text_modified) > 0 :
-                    Steganography.encode(original_image, output_path, text)
-                    print ("Message sent successfully.")
-                    break
+                    try:
+                        Steganography.encode(original_image, output_path, text)
+                        new_chat = {
+                            "message": text,
+                            "time": datetime.now(),
+                            "sent_by_me": True
+                        }
+                        friends[friend_choice]['chats'].append(new_chat)
+                        print ("Your secret message is ready!")
+                        break
+                    except:
+                        print "File not Found. Try Again."
                 else :
                     question = raw_input("Do you want to send a blank message? (y/n)")
                     question = question.replace(" ","")
                     question = question.upper()
                     if question == "Y" or question == "YES":
-                        Steganography.encode(original_image, output_path, text)
-                        print "Message sent successfully."
-                        break
+                        try:
+                            Steganography.encode(original_image, output_path, text)
+                            new_chat = {
+                                "message": text,
+                                "time": datetime.now(),
+                                "sent_by_me": True
+                            }
+                            friends[friend_choice]['chats'].append(new_chat)
+                            print ("Your secret message is ready!")
+                            break
+                        except:
+                            print "File not Found. Try Again."
                     elif question == "N" or question == "NO":
-                        pass
+                        break
                     else :
                         print "Invalid input (y/n)"
             else:
@@ -401,12 +421,22 @@ def read_message():
             output_path = raw_input("What is the name of the file?")
             output_path = output_path.strip()
             if len(output_path) > 0:
-                secret_text = Steganography.decode(output_path)
-                secret_text = secret_text.strip()
-                print "Message = %s"%(secret_text)
-                if len(secret_text) == 0:
-                    print "Your friend has sent you a blank message"
-                break
+                try:
+                    secret_text = Steganography.decode(output_path)
+                    secret_text = secret_text.strip()
+                    print "Message = %s"%(secret_text)
+                    if len(secret_text) == 0:
+                        print "Your friend has sent you a blank message"
+                    new_chat = {
+                        "message": secret_text,
+                        "time": datetime.now(),
+                        "sent_by_me": False
+                    }
+                    friends[sender]['chats'].append(new_chat)
+                    print "Your secret message has been saved!"
+                    break
+                except:
+                    print "File Not Found. Try Again. "
             else:
                 print "Please enter a valid file name. "
 
