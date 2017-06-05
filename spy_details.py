@@ -1,5 +1,7 @@
 from datetime import datetime
 
+special_words = ["SOS", "SAVE ME"]
+
 class Spy:
 
     def __init__(self, name, salutation, age, rating):
@@ -10,6 +12,8 @@ class Spy:
         self.is_online = True
         self.chats = []
         self.current_status_message = None
+        self.total_words = 0
+        self.sent_chats = 0
 
 
 class ChatMessage:

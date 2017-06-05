@@ -1,4 +1,4 @@
-from spy_details import default_spy, Spy, ChatMessage, friends
+from spy_details import default_spy, Spy, ChatMessage, friends, special_words
 from steganography.steganography import Steganography
 from datetime import datetime
 
@@ -247,6 +247,45 @@ def add_friend(user_spy_rating):
 
 
 
+#Update_avg method will update avg words spoken by friends.
+#.................................................................................................................................................................................
+def update_avg(sender,text):
+    friends[sender].sent_chats = friends[sender].sent_chats + 1                                                         # Updating total chats.
+    text = text.split()
+    text = len(text)                                                                                                    # Calculating new message length.
+    friends[sender].total_words = friends[sender].total_words + text
+
+    avg_words = friends[sender].total_words / friends[sender].sent_chats                                                # calculating avg words.
+
+    if avg_words > 100:
+        print "%s was speaking too much, so deleted from your friends list." % friends[sender].name                     # Deleting if speaking too much.
+        del friends[sender]
+
+#End of update_avg method.........................................................................................................................................................
+
+
+
+
+
+#Check_special method will check for special word in message.
+#.................................................................................................................................................................................
+def check_special(text):
+    contained = False
+    text = text.upper()                                                                                                 # converting all text to upper for better matcing.
+
+    for special_word in special_words:
+        found = text.find(special_word)                                                                                 # Checking for special words.
+        if found != -1:
+            contained = True
+            break
+    return contained
+
+#End of check_special method......................................................................................................................................................
+
+
+
+
+
 #Add status method update the status.(one parameter of type string current status. one retuen type of string current status.)
 #.................................................................................................................................................................................
 def add_status(current_status_message):
@@ -411,12 +450,15 @@ def read_message():
                 try:
                     secret_text = Steganography.decode(output_path)
                     secret_text = secret_text.strip()
-                    print "Message = %s"%secret_text
+                    if check_special(secret_text):                                                                      # Checking for special words.
+                        print "!!!!EMERGENCY!!!!"
+                    print "Message = %s" % secret_text
                     if len(secret_text) == 0:                                                                           # Decoding Message.
                         print "Your friend has sent you a blank message"
-                    new_chat = ChatMessage(secret_text,False)                                                           # saving in chat History.
+                    new_chat = ChatMessage(secret_text, False)                                                          # saving in chat History.
                     friends[sender].chats.append(new_chat)
                     print "Your secret message has been saved!"
+                    update_avg(sender, secret_text)
                     break
                 except:
                     print "File Not Found (Please select a valid image file). Try Again. "
@@ -434,12 +476,12 @@ def read_message():
 def read_chat():
     sender = select_friend()                                                                                            # Select a friend.
     if sender is not None:
-        if len(friends[sender].chats) > 0:
+        if len(friends[sender].chats) > 0:                                                                              # Checking if there are no chat history.
             counter = 0
             for chat in friends[sender].chats:
                 counter = counter + 1
-                time_of_message = chat.time
-                if chat.sent_by_me == True:
+                time_of_message = chat.time                                                                             # printing chat history.
+                if chat.sent_by_me:
                     status = "sent"
                 else:
                     status = "recieved"
@@ -466,9 +508,9 @@ def start_chat(spy):
         menu_choice = (raw_input(menu_choices)).strip()                                                                 # Asking for a input in menu.
 
         if menu_choice == "1":                                                                                          # Calling status update if 1.
-            current_status_message = add_status(current_status_message)
-            if current_status_message is not None:
-                print "Status updated successfully "+current_status_message
+            spy.current_status_message = add_status(spy.current_status_message)
+            if spy.current_status_message is not None:
+                print "Status updated successfully "+spy.current_status_message
 
         elif menu_choice == "2":                                                                                        # Calling add friend if 2.
             total_friend = add_friend(spy.rating)
