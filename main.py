@@ -1,7 +1,9 @@
 from spy_details import default_spy, Spy, ChatMessage, friends, special_words
 from steganography.steganography import Steganography
+from colorama import init
+from colorama import Fore
 from datetime import datetime
-
+init()
 status_messages = []
 
 
@@ -94,10 +96,10 @@ def basic_info():
         new_spy.rating = new_spy.rating.replace(" ", "")                                                                # Removing extra whitespaces.
         try:
             new_spy.rating = float(new_spy.rating)                                                                      # updating spy age and handling if not a float.
-            if new_spy.rating <= 5.0:                                                                                   # handling if spy_rating entered is greater than 5.
+            if 0 <= new_spy.rating <= 5.0:                                                                              # handling if spy_rating entered is greater than 5.
                 break
             else:
-                print "We are expecting rating out of 5."
+                print "We are expecting rating from 0 t0 5."
         except:
             print "Please enter a valid rating."
 
@@ -485,7 +487,7 @@ def read_chat():
                     status = "sent"
                 else:
                     status = "recieved"
-                print "%d. " % counter + time_of_message.strftime("%d-%m-%y %H:%M:%S") + " " + status + "  '" + chat.message + "'"
+                print "%d. " % counter + (Fore.BLUE + time_of_message.strftime("%d-%m-%y %H:%M:%S")) + " " + (Fore.RED + status) + "  " + (Fore.BLACK + chat.message)
 
         else:
             print ("No chat history from selected friend")
